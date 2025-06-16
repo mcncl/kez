@@ -13,11 +13,13 @@ A command-line tool for managing Buildkite agent stacks in Kubernetes clusters.
 
 ## Installation
 
-### Build from Source
+### Using `go install`
 
 ```bash
-go build -o kez
+go install github.com/mcncl/kez@latest
 ```
+
+Binaries are available on the [releases](https://github.com/mcncl/kez/releases) page.
 
 ### Requirements
 
