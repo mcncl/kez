@@ -1,4 +1,4 @@
-# Kez - Buildkite Agent Stack Manager
+# kez - Buildkite Agent Stack Manager
 
 A command-line tool for managing Buildkite agent stacks in Kubernetes clusters.
 
@@ -9,7 +9,6 @@ A command-line tool for managing Buildkite agent stacks in Kubernetes clusters.
 - **Stack lifecycle management** - Create, monitor, and delete agent stacks
 - **SSH key support** - Generate and manage SSH keys for private repository access
 - **Multi-stack support** - Handle multiple agent stacks in the same cluster
-- **Provider detection** - Automatically detect Kubernetes providers (EKS, GKE, AKS, etc.)
 - **Token management** - Automatic cleanup of Buildkite agent tokens
 
 ## Installation
