@@ -65,11 +65,8 @@ You can specify options to skip interactive prompts:
 # Use a specific version
 kez stack create --version=0.28.1
 
-# Use a specific cluster
-kez stack create --cluster-id=your-cluster-uuid
-
-# Generate SSH keys automatically
-kez stack create --ssh-key
+# Suppress non-essential output
+kez stack create --quiet
 
 # Specify a custom stack name
 kez stack create --name=my-custom-stack
@@ -114,14 +111,9 @@ kez stack delete --force
 
 #### SSH Key Management
 
-Generate SSH keys for accessing private repositories:
-
-```bash
-kez stack create --ssh-key
-```
-
-The tool will:
-- Generate an SSH key pair
+The tool will interactively prompt you to configure SSH keys for accessing private repositories. It can:
+- Use existing SSH keys from your ~/.ssh directory
+- Generate a new SSH key pair if needed
 - Store the private key as a Kubernetes secret
 - Display the public key for you to add to your Git provider
 
@@ -158,9 +150,7 @@ Create a new agent stack.
 
 **Options:**
 - `--version` - Specify agent-stack-k8s version
-- `--cluster-id` - Specify Buildkite cluster ID
 - `--name` - Custom stack name (default: auto-generated)
-- `--ssh-key` - Generate SSH keys for private repositories
 - `--quiet` - Suppress non-essential output
 
 ### `kez stack status`
