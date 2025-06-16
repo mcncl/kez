@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/alecthomas/kong"
-	"github.com/mcncl/kuberneasy/internal/config" // Import the config package
+	"github.com/mcncl/kez/internal/config" // Import the config package
 )
 
 type ConfigureCmd struct {
@@ -38,9 +38,8 @@ func (c *ConfigureCmd) Run(ctx *kong.Context) error {
 	// Prompt for Buildkite API Token
 	// Don't show the existing token in the prompt for security
 	tokenPrompt := "Enter Buildkite API Token (will not be shown): "
-	// Note: For real token input, consider using a library to hide input.
-	// bufio.Reader reads it plainly.
-	token, err := config.PromptForInput(tokenPrompt)
+	// Use the secure password input function to mask the token input
+	token, err := config.PromptForPassword(tokenPrompt)
 	if err != nil {
 		return err
 	}

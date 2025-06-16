@@ -7,6 +7,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
+	
+	"golang.org/x/term"
 )
 
 // Config represents the application's configuration.
@@ -29,9 +32,11 @@ type KubernetesConfig struct {
 
 // RecentCluster holds information about a recently used cluster.
 type RecentCluster struct {
-	UUID    string `json:"uuid"`
-	Name    string `json:"name"`
-	OrgSlug string `json:"org_slug"`
+	UUID     string `json:"uuid"`
+	Name     string `json:"name"`
+	OrgSlug  string `json:"org_slug"`
+	TokenID  string `json:"token_id,omitempty"`  // ID of the cluster token
+	TokenVal string `json:"token_val,omitempty"` // Value of the token (for reference only)
 }
 
 // Default values for a new configuration.
@@ -50,21 +55,28 @@ func DefaultConfig() *Config {
 
 // configFilePath points to the function used to get the config file path.
 // It's a variable to allow overriding during tests.
+// Returns the path to the configuration file at ~/.config/kez/config.json.
 var configFilePath = func() (string, error) {
-	configDir, err := os.UserConfigDir()
+	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf("failed to get user config directory: %w", err)
+		return "", fmt.Errorf("failed to get user home directory: %w", err)
 	}
-	// Using "kuberneasy" as the directory name within .config
-	return filepath.Join(configDir, "kuberneasy", "config.json"), nil
+	// Using ~/.config/kez for config storage
+	return filepath.Join(homeDir, ".config", "kez", "config.json"), nil
 }
 
-// Load reads the configuration from the file system.
-// If the file doesn't exist, it returns a default configuration.
+// Load reads the configuration from ~/.config/kez.
+// If the file doesn't exist, it creates the directory and returns a default configuration.
 func Load() (*Config, error) {
 	path, err := configFilePath()
 	if err != nil {
 		return nil, err
+	}
+
+	// Ensure the config directory exists
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0750); err != nil {
+		return nil, fmt.Errorf("failed to create config directory %s: %w", dir, err)
 	}
 
 	data, err := os.ReadFile(path)
@@ -95,7 +107,7 @@ func Load() (*Config, error) {
 	return &cfg, nil
 }
 
-// Save writes the configuration to the file system.
+// Save writes the configuration to the file system in ~/.config/kez.
 // It creates the necessary directories if they don't exist.
 func Save(cfg *Config) error {
 	path, err := configFilePath()
@@ -133,4 +145,21 @@ func PromptForInput(prompt string) (string, error) {
 		return "", fmt.Errorf("failed to read input: %w", err)
 	}
 	return strings.TrimSpace(input), nil
+}
+
+// PromptForPassword prompts the user for a password input with masking.
+// The input will not be displayed on the screen as it's being typed.
+func PromptForPassword(prompt string) (string, error) {
+	fmt.Print(prompt)
+	
+	// Read password without echoing to the terminal
+	passwordBytes, err := term.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		return "", fmt.Errorf("failed to read password: %w", err)
+	}
+	
+	// Print a newline since ReadPassword doesn't do it
+	fmt.Println()
+	
+	return string(passwordBytes), nil
 }
